@@ -15,7 +15,6 @@ const port = process.env.PORT || 1881
 const url = process.env.URL || 'http://192.168.10.70/live'
 
 app.get('/live', async (_, res) => {
-    console.log(port, url)
     request({
         url: url,
         encoding: null,
