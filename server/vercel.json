@@ -1,9 +1,13 @@
 {
     "version": 2,
+    "name": "djupvik-api",
     "builds": [
         {
             "src": "index.js",
             "use": "@now/node-server"
         }
+    ],
+    "routes": [
+        {"src": "/.*", "dest": "lib/index.js"}
     ]
 }
