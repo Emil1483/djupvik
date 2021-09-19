@@ -36,4 +36,4 @@ const updateImg = (async function () {
 })
 
 updateImg()
-// setInterval(updateImg, 5000)
+setInterval(updateImg, 5000)
