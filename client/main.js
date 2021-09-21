@@ -1,7 +1,7 @@
 const liveImageDiv = document.getElementById('live-image')
 const liveImageDivTemp = document.getElementById('live-image-temp')
 
-const APP_URL = window.location.hostname === 'localhost' ? 'http://localhost:1881/live' : 'https://api.djupvik.dev/live';
+const APP_URL = window.location.hostname === 'localhost' ? 'http://localhost:1881/live' : 'https://server.djupvik.dev/live';
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
