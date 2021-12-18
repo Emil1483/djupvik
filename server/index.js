@@ -1,9 +1,9 @@
-import express from 'express'
-import cors from 'cors'
-import morgan from 'morgan'
-import helmet from 'helmet'
-import request from 'request'
 import axios from 'axios'
+import cors from 'cors'
+import express from 'express'
+import helmet from 'helmet'
+import morgan from 'morgan'
+import request from 'request'
 
 const app = express()
 
@@ -15,19 +15,23 @@ app.use(express.json())
 const port = process.env.PORT || 1881
 const url = process.env.URL || 'http://192.168.10.70/'
 
-app.get('/live', async (_, res) => {
+app.get('/frame', async (_, res) => {
     request({
-        url: url + 'live',
+        url: url + 'frame',
         encoding: null,
     },
         (error, response, _) => {
             if (!error && response.body) {
-                res.set("Content-Type", "image/jpeg")
+                res.set('Content-Type', 'image/jpeg')
                 res.send(response.body)
             } else {
                 res.status(500).json({ 'errorCode': error.code })
             }
         })
+})
+
+app.get('/live', function(_, res) {
+    request.get(url + 'live').pipe(res)
 })
 
 app.post('/:x', async (req, res) => {
