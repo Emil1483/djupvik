@@ -27,14 +27,10 @@ const url = process.env.URL || 'http://192.168.10.70/'
 const ips = {}
 
 app.use((req, _, next) => {
-    const ip = req.socket.remoteAddress.split(':').reverse()[0]
-
-    console.log('ip', ip, 'remoteAddress', req.socket.remoteAddress, 'req.ip', req.ip)
-
-    if (!(ip in ips)) {
+    if (!(req.ip in ips)) {
         let data = null
 
-        request.get(`http://ip-api.com/json/${ip}`, null, (e, _, body) => {
+        request.get(`http://ip-api.com/json/${req.ip}`, null, (e, _, body) => {
             if (e) return
 
             if (body.status != 'success') return
@@ -42,22 +38,22 @@ app.use((req, _, next) => {
             data = body
         })
 
-        ips[ip] = {
+        ips[req.ip] = {
             lastCall: Date.now(),
             sessions: [Date.now()],
             data: data
         }
     } else {
-        const lastCall = ips[ip].lastCall
+        const lastCall = ips[req.ip].lastCall
 
-        ips[ip].lastCall = Date.now()
+        ips[req.ip].lastCall = Date.now()
 
         const diffMillis = Date.now() - lastCall
 
         if (req.method == 'POST' || diffMillis / 1000 > 10) {
-            ips[ip].sessions.push(Date.now())
+            ips[req.ip].sessions.push(Date.now())
         } else {
-            ips[ip].sessions[ips[ip].sessions.length - 1] = Date.now()
+            ips[req.ip].sessions[ips[req.ip].sessions.length - 1] = Date.now()
         }
     }
 
@@ -67,9 +63,7 @@ app.use((req, _, next) => {
 })
 
 app.use((req, res, next) => {
-    const ip = req.socket.remoteAddress.split(':').reverse()[0]
-
-    const recentSessions = ips[ip].sessions.filter((date) => {
+    const recentSessions = ips[req.ip].sessions.filter((date) => {
         const diffMillis = Date.now() - date
         return diffMillis / (1000 * 60 * 60) < 12
     })
