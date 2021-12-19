@@ -16,27 +16,28 @@ app.set('trust proxy', true)
 const port = process.env.PORT || 1881
 const url = process.env.URL || 'http://192.168.10.70/'
 
-// {
-// <ip_address>: {
-//    last_call_at: DateTime
-//    sessions: [<DateTime>...]
-//    data: {<from ip-api>}
-//   }
-// }
+const asyncRequest = async (value) =>
+    new Promise((resolve, reject) => {
+        request(value, (error, _, data) => {
+            if (error) reject(error)
+            else resolve(data)
+        })
+    })
 
 const ips = {}
 
-app.use((req, _, next) => {
+app.use(async (req, _, next) => {
     if (!(req.ip in ips)) {
         let data = null
 
-        request.get(`http://ip-api.com/json/${req.ip}`, null, (e, _, body) => {
-            if (e) return
-
-            if (body.status != 'success') return
-
-            data = body
+        const result = await asyncRequest({
+            url: `http://ip-api.com/json/${req.ip}`,
+            json: true,
         })
+
+        if (result['status'] == 'success') {
+            data = result
+        }
 
         ips[req.ip] = {
             lastCall: Date.now(),
