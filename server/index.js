@@ -11,6 +11,8 @@ app.use(morgan('tiny'))
 app.use(cors())
 app.use(express.json())
 
+app.set('trust proxy', true)
+
 const port = process.env.PORT || 1881
 const url = process.env.URL || 'http://192.168.10.70/'
 
@@ -27,7 +29,7 @@ const ips = {}
 app.use((req, _, next) => {
     const ip = req.socket.remoteAddress.split(':').reverse()[0]
 
-    console.log('ip', ip, 'remoteAddress', req.socket.remoteAddress)
+    console.log('ip', ip, 'remoteAddress', req.socket.remoteAddress, 'req.ip', req.ip)
 
     if (!(ip in ips)) {
         let data = null
@@ -46,11 +48,11 @@ app.use((req, _, next) => {
             data: data
         }
     } else {
+        const lastCall = ips[ip].lastCall
+
         ips[ip].lastCall = Date.now()
 
-        const prevTime = ips[ip].sessions[ips[ip].sessions.length - 1]
-
-        const diffMillis = Date.now() - prevTime
+        const diffMillis = Date.now() - lastCall
 
         if (req.method == 'POST' || diffMillis / 1000 > 10) {
             ips[ip].sessions.push(Date.now())
@@ -66,7 +68,7 @@ app.use((req, _, next) => {
 
 app.use((req, res, next) => {
     const ip = req.socket.remoteAddress.split(':').reverse()[0]
-    
+
     const recentSessions = ips[ip].sessions.filter((date) => {
         const diffMillis = Date.now() - date
         return diffMillis / (1000 * 60 * 60) < 12
