@@ -27,6 +27,8 @@ const ips = {}
 app.use((req, _, next) => {
     const ip = req.socket.remoteAddress.split(':').reverse()[0]
 
+    console.log('ip', ip, 'remoteAddress', req.socket.remoteAddress)
+
     if (!(ip in ips)) {
         let data = null
 
