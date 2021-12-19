@@ -1,4 +1,3 @@
-import axios from 'axios'
 import cors from 'cors'
 import express from 'express'
 import helmet from 'helmet'
@@ -15,37 +14,14 @@ app.use(express.json())
 const port = process.env.PORT || 1881
 const url = process.env.URL || 'http://192.168.10.70/'
 
-app.get('/frame', async (_, res) => {
-    request({
-        url: url + 'frame',
-        encoding: null,
-    },
-        (error, response, _) => {
-            if (!error && response.body) {
-                res.set('Content-Type', 'image/jpeg')
-                res.send(response.body)
-            } else {
-                res.status(500).json({ 'errorCode': error.code })
-            }
-        })
+app.get('/:x', (req, res) => {
+    request.get(url + req.params.x).pipe(res)
 })
 
-app.get('/live', function(_, res) {
-    request.get(url + 'live').pipe(res)
+app.post('/:x', (req, res) => {
+    request.post(url + req.params.x).pipe(res)
 })
 
-app.post('/:x', async (req, res) => {
-    try {
-        const result = await axios.post(url + req.params.x)
-
-        console.log(result)
-
-        res.send(result.data)
-    } catch (e) {
-        const error = e.toJSON()
-        res.status(error.status).json(error)
-    }
-})
 
 app.listen(port, () => {
     console.log(`Listening at http://localhost:${port}`)
