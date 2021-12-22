@@ -66,10 +66,10 @@ app.use(async (req, _, next) => {
 app.use((req, res, next) => {
     const recentSessions = ips[req.ip].sessions.filter((date) => {
         const diffMillis = Date.now() - date
-        return diffMillis / (1000 * 60 * 60) < 12
+        return diffMillis / (1000 * 60 * 60) < 3
     })
 
-    if (recentSessions.length > 30) {
+    if (recentSessions.length > 5) {
         res.status(403).send('too many requests')
         return
     }
