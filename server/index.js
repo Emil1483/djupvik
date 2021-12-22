@@ -26,6 +26,16 @@ const asyncRequest = async (value) =>
 
 const ips = {}
 
+function calculateSessions(ip) {
+    if (!(ip in ips)) return [Date.now()]
+
+    if (!ips[ip].data) return [Date.now()]
+
+    if (ips[ip].data.countryCode == 'NO') return [Date.now()]
+
+    return new Array(2).fill(Date.now())
+}
+
 app.use(async (req, _, next) => {
     if (!(req.ip in ips)) {
         let data = null
@@ -41,9 +51,10 @@ app.use(async (req, _, next) => {
 
         ips[req.ip] = {
             lastCall: Date.now(),
-            sessions: [Date.now()],
             data: data
         }
+
+        ips[req.ip].sessions = calculateSessions(req.ip)
     } else {
         const lastCall = ips[req.ip].lastCall
 
@@ -52,7 +63,7 @@ app.use(async (req, _, next) => {
         const diffMillis = Date.now() - lastCall
 
         if (req.method == 'POST' || diffMillis / 1000 > 10) {
-            ips[req.ip].sessions.push(Date.now())
+            ips[req.ip].sessions.push(...calculateSessions(req.ip))
         } else {
             ips[req.ip].sessions[ips[req.ip].sessions.length - 1] = Date.now()
         }
