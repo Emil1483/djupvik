@@ -16,6 +16,18 @@ app.set('trust proxy', true)
 const port = process.env.PORT || 1881
 const url = process.env.URL || 'http://192.168.10.70/'
 
+const limits = {
+    'GET /frame': 3,
+    'POST /notify': 5,
+    'POST /say': 2
+}
+
+const limitsNO = {
+    'GET /frame': 6,
+    'POST /notify': 6,
+    'POST /say': 8
+}
+
 const asyncRequest = async (value) =>
     new Promise((resolve, reject) => {
         request(value, (error, _, data) => {
@@ -24,66 +36,93 @@ const asyncRequest = async (value) =>
         })
     })
 
-const ips = {}
-
-function calculateSessions(ip) {
-    if (!(ip in ips)) return [Date.now()]
-
-    if (!ips[ip].data) return [Date.now()]
-
-    if (ips[ip].data.countryCode == 'NO') return [Date.now()]
-
-    return new Array(2).fill(Date.now())
+function endpointOf(req) {
+    return `${req.method} ${req.url.split('?')[0]}`
 }
+
+const ips = {}
 
 app.use(async (req, _, next) => {
     if (!(req.ip in ips)) {
         let data = null
 
-        const result = await asyncRequest({
-            url: `http://ip-api.com/json/${req.ip}`,
-            json: true,
-        })
+        try {
+            const result = await asyncRequest({
+                url: `http://ip-api.com/json/${req.ip}`,
+                json: true,
+            })
 
-        if (result['status'] == 'success') {
-            data = result
+            if (result['status'] == 'success') {
+                data = result
+            }
+        } catch (e) {
+            console.log('could not get ip data', e)
         }
 
         ips[req.ip] = {
             lastCall: Date.now(),
-            data: data
-        }
-
-        ips[req.ip].sessions = calculateSessions(req.ip)
-    } else {
-        const lastCall = ips[req.ip].lastCall
-
-        ips[req.ip].lastCall = Date.now()
-
-        const diffMillis = Date.now() - lastCall
-
-        if (req.method == 'POST' || diffMillis / 1000 > 10) {
-            ips[req.ip].sessions.push(...calculateSessions(req.ip))
-        } else {
-            ips[req.ip].sessions[ips[req.ip].sessions.length - 1] = Date.now()
+            data: data,
+            sessions: {}
         }
     }
-
-    console.log(ips)
 
     next()
 })
 
 app.use((req, res, next) => {
-    const recentSessions = ips[req.ip].sessions.filter((date) => {
-        const diffMillis = Date.now() - date
-        return diffMillis / (1000 * 60 * 60) < 3
-    })
+    const endpoint = endpointOf(req)
+    const ip = req.ip
 
-    if (recentSessions.length > 5) {
-        res.status(403).send('too many requests')
+    if (!(endpoint in ips[ip].sessions)) {
+        next()
         return
     }
+
+    const fromNorway = ips[ip].data == null || ips[ip].data.countryCode == 'NO'
+    const activeLimits = fromNorway ? limitsNO : limits
+
+    if (!(endpoint in activeLimits)) {
+        next()
+        return
+    }
+
+    const limit = activeLimits[endpoint]
+    const sessions = ips[ip].sessions[endpoint].sessions
+    const count = sessions.filter((session) => {
+        const diff = Date.now() - session
+        return diff < 1000 * 60 * 60 * 2
+    }).length
+
+    if (count >= limit) {
+        res.status(403).send(`too many requests for endpoint ${endpoint}. You can max make ${limit} requests`)
+        return
+    }
+
+    next()
+})
+
+app.use((req, _, next) => {
+    const endpoint = endpointOf(req)
+    const ip = req.ip
+
+    if (!(endpoint in ips[ip].sessions)) {
+        ips[ip].sessions[endpoint] = { sessions: [] }
+    }
+
+    if (endpoint == 'GET /frame') {
+        const lastCall = ips[ip].sessions[endpoint].lastCall
+
+        if (Date.now() - lastCall > 1000 * 5) {
+            ips[ip].sessions[endpoint].sessions.push(Date.now())
+        }
+
+        ips[ip].sessions[endpoint].lastCall = Date.now()
+        next()
+        return
+    }
+
+    ips[ip].sessions[endpoint].sessions.push(Date.now())
+    ips[ip].sessions[endpoint].lastCall = Date.now()
 
     next()
 })
