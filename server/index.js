@@ -145,7 +145,7 @@ app.post('/:x', (req, res) => {
     request.post({
         url: endpoint,
         headers: headers,
-        body: req.body,
+        body: req.body.toString(),
     }).pipe(res)
 })
 
