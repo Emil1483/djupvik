@@ -2,6 +2,7 @@ const xhr = new XMLHttpRequest();
 
 const liveImageDiv = document.getElementById('live-image')
 const liveImageDivTemp = document.getElementById('live-image-temp')
+const sayForm = document.getElementById('say')
 
 const APP_URL = window.location.hostname === 'localhost' ? 'http://localhost:1881/' : 'https://server.djupvik.dev/';
 
@@ -42,7 +43,7 @@ setInterval(updateImg, 1500)
 
 function cum() {
     xhr.open('POST', APP_URL + 'notify')
-    
+
     xhr.onreadystatechange = () => {
         if (xhr.readyState !== 4) return
 
@@ -51,3 +52,20 @@ function cum() {
 
     xhr.send()
 }
+
+sayForm.addEventListener('submit', (event) => {
+    event.preventDefault()
+
+    const formData = new FormData(sayForm)
+    const sayInput = formData.get('say-input')
+
+    xhr.open('POST', APP_URL + 'say')
+
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState !== 4) return
+
+        alert(xhr.responseText)
+    }
+
+    xhr.send(sayInput)
+})
