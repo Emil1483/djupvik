@@ -5,19 +5,8 @@ const liveImageDivTemp = document.getElementById('live-image-temp')
 const liveVideo = document.getElementById('live-video')
 const sayForm = document.getElementById('say')
 
-const piIp = 'https://192.168.10.69:5000/'
-
-let piAvailable = false
-
-try {
-    xhr.open('GET', piIp, false)
-    xhr.send()
-    piAvailable = xhr.status == 200
-} catch (e) {
-    console.log(`could not make request to ${piIp}`, e)
-}
-
-const APP_URL = piAvailable ? piIp : 'https://server.djupvik.dev/';
+const PI_URL = 'https://192.168.10.69:5000/'
+const APP_URL = 'https://server.djupvik.dev/';
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -51,11 +40,27 @@ const updateImg = (async function () {
     liveImageDivTemp.replaceChildren(image(url))
 })
 
-if (piAvailable) {
-    liveVideo.setAttribute('src', APP_URL + 'live')
-} else {
-    updateImg()
-    setInterval(updateImg, 1500)
+try {
+    xhr.open('GET', PI_URL)
+
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState !== 4) return
+
+        const piAvailable = xhr.status == 200
+        alert(piAvailable)
+        alert(xhr.status)
+
+        if (piAvailable) {
+            liveVideo.setAttribute('src', PI_URL + 'live')
+        } else {
+            updateImg()
+            setInterval(updateImg, 1500)
+        }
+    }
+
+    xhr.send()
+} catch (e) {
+    console.log(`could not make request to ${PI_URL}`, e)
 }
 
 function cum() {
