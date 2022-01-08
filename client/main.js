@@ -44,11 +44,7 @@ try {
     xhr.open('GET', PI_URL)
 
     xhr.onload = () => {
-        const piAvailable = xhr.status == 200
-        alert(piAvailable)
-        alert(xhr.status)
-
-        if (piAvailable) {
+        if (xhr.status == 200) {
             liveVideo.setAttribute('src', PI_URL + 'live')
         } else {
             updateImg()
