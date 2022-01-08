@@ -52,7 +52,7 @@ try {
         }
     }
 
-    sleep(100).then((_) => {
+    sleep(1000).then((_) => {
         xhr.send()
     })
 } catch (e) {
