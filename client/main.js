@@ -43,9 +43,7 @@ const updateImg = (async function () {
 try {
     xhr.open('GET', PI_URL)
 
-    xhr.onreadystatechange = () => {
-        if (xhr.readyState !== 4) return
-
+    xhr.onload = () => {
         const piAvailable = xhr.status == 200
         alert(piAvailable)
         alert(xhr.status)
