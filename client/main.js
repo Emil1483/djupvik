@@ -7,9 +7,17 @@ const sayForm = document.getElementById('say')
 
 const piIp = 'http://192.168.10.69/'
 
-xhr.open('GET', piIp, false)
-xhr.send()
-const APP_URL = xhr.status == 200 ? piIp : 'https://server.djupvik.dev/';
+let piAvailable = false
+
+try {
+    xhr.open('GET', piIp, false)
+    xhr.send()
+    piAvailable = xhr.status == 200
+} catch (e) {
+    console.log(`could not make request to ${piIp}`, e)
+}
+
+const APP_URL = piAvailable ? piIp : 'https://server.djupvik.dev/';
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -43,7 +51,7 @@ const updateImg = (async function () {
     liveImageDivTemp.replaceChildren(image(url))
 })
 
-if (APP_URL == piIp) {
+if (piAvailable) {
     liveVideo.setAttribute('src', APP_URL + 'live')
 } else {
     updateImg()
