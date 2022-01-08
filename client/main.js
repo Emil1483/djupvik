@@ -2,9 +2,14 @@ const xhr = new XMLHttpRequest();
 
 const liveImageDiv = document.getElementById('live-image')
 const liveImageDivTemp = document.getElementById('live-image-temp')
+const liveVideo = document.getElementById('live-video')
 const sayForm = document.getElementById('say')
 
-const APP_URL = window.location.hostname === 'localhost' ? 'http://localhost:1881/' : 'https://server.djupvik.dev/';
+const piIp = 'http://192.168.10.69/'
+
+xhr.open('GET', piIp, false)
+xhr.send()
+const APP_URL = xhr.status == 200 ? piIp : 'https://server.djupvik.dev/';
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -38,8 +43,12 @@ const updateImg = (async function () {
     liveImageDivTemp.replaceChildren(image(url))
 })
 
-updateImg()
-setInterval(updateImg, 1500)
+if (APP_URL == piIp) {
+    liveVideo.setAttribute('src', APP_URL + 'live')
+} else {
+    updateImg()
+    setInterval(updateImg, 1500)
+}
 
 function cum() {
     xhr.open('POST', APP_URL + 'notify')
