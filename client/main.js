@@ -5,7 +5,7 @@ const liveImageDivTemp = document.getElementById('live-image-temp')
 const liveVideo = document.getElementById('live-video')
 const sayForm = document.getElementById('say')
 
-const piIp = 'http://192.168.10.69/'
+const piIp = 'https://192.168.10.69:5000/'
 
 let piAvailable = false
 
