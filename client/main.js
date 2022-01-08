@@ -43,6 +43,8 @@ const updateImg = (async function () {
 try {
     xhr.open('GET', PI_URL)
 
+    let done = false
+
     xhr.onload = () => {
         if (xhr.status == 200) {
             liveVideo.setAttribute('src', PI_URL + 'live')
@@ -50,10 +52,18 @@ try {
             updateImg()
             setInterval(updateImg, 1500)
         }
+        done = true
     }
 
-    xhr.send()
-    xhr.send()
+    sendRequests = async () => {
+        while (!done) {
+            xhr.send()
+            await sleep(1500)
+        }
+    }
+
+    sendRequests()
+
 } catch (e) {
     console.log(`could not make request to ${PI_URL}`, e)
 }
