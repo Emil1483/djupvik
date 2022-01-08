@@ -52,7 +52,9 @@ try {
         }
     }
 
-    sleep(100).then(xhr.send)
+    sleep(100).then((_) => {
+        xhr.send()
+    })
 } catch (e) {
     console.log(`could not make request to ${PI_URL}`, e)
 }
