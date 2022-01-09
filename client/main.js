@@ -57,7 +57,7 @@ sendRequests = async () => {
                 done = true
             }
             xhr.send()
-            await sleep(1500)
+            await sleep(5000)
         }
     } catch (e) {
         console.log(`could not make request to ${PI_URL}`, e)
