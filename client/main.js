@@ -40,10 +40,14 @@ const updateImg = (async function () {
     liveImageDivTemp.replaceChildren(image(url))
 })
 
+let requestSent = false
+
 xhr.open('GET', PI_URL)
 
 xhr.onreadystatechange = () => {
     if (xhr.readyState !== xhr.DONE) return
+
+    requestSent = true
 
     if (xhr.status == 200) {
         liveVideo.setAttribute('src', PI_URL + 'live')
@@ -54,6 +58,13 @@ xhr.onreadystatechange = () => {
 }
 
 xhr.send()
+
+sleep(1000).then(() => {
+    if (requestSent) return
+    xhr.abort()
+    updateImg()
+    setInterval(updateImg, 1500)
+})
 
 function cum() {
     xhr.open('POST', APP_URL + 'notify')
