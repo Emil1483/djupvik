@@ -86,6 +86,8 @@ sayForm.addEventListener('submit', (event) => {
 
     xhr.open('POST', APP_URL + 'say')
 
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+
     xhr.onreadystatechange = () => {
         if (xhr.readyState !== xhr.DONE) return
 
