@@ -40,37 +40,26 @@ const updateImg = (async function () {
     liveImageDivTemp.replaceChildren(image(url))
 })
 
+xhr.open('GET', PI_URL)
 
-sendRequests = async () => {
-    try {
-        let done = false
-        while (!done) {
-            xhr.open('GET', PI_URL)
+xhr.onreadystatechange = () => {
+    if (xhr.readyState !== xhr.DONE) return
 
-            xhr.onload = () => {
-                if (xhr.status == 200) {
-                    liveVideo.setAttribute('src', PI_URL + 'live')
-                } else {
-                    updateImg()
-                    setInterval(updateImg, 1500)
-                }
-                done = true
-            }
-            xhr.send()
-            await sleep(5000)
-        }
-    } catch (e) {
-        console.log(`could not make request to ${PI_URL}`, e)
+    if (xhr.status == 200) {
+        liveVideo.setAttribute('src', PI_URL + 'live')
+    } else {
+        updateImg()
+        setInterval(updateImg, 1500)
     }
 }
 
-sendRequests()
+xhr.send()
 
 function cum() {
     xhr.open('POST', APP_URL + 'notify')
 
     xhr.onreadystatechange = () => {
-        if (xhr.readyState !== 4) return
+        if (xhr.readyState !== xhr.DONE) return
 
         alert(xhr.responseText)
     }
@@ -87,7 +76,7 @@ sayForm.addEventListener('submit', (event) => {
     xhr.open('POST', APP_URL + 'say')
 
     xhr.onreadystatechange = () => {
-        if (xhr.readyState !== 4) return
+        if (xhr.readyState !== xhr.DONE) return
 
         alert(xhr.responseText)
     }
