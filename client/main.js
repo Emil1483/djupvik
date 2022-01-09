@@ -40,23 +40,22 @@ const updateImg = (async function () {
     liveImageDivTemp.replaceChildren(image(url))
 })
 
-let done = false
 
 sendRequests = async () => {
     try {
-        xhr.open('GET', PI_URL)
-
-        xhr.onload = () => {
-            if (xhr.status == 200) {
-                liveVideo.setAttribute('src', PI_URL + 'live')
-            } else {
-                updateImg()
-                setInterval(updateImg, 1500)
-            }
-            done = true
-        }
-
+        let done = false
         while (!done) {
+            xhr.open('GET', PI_URL)
+
+            xhr.onload = () => {
+                if (xhr.status == 200) {
+                    liveVideo.setAttribute('src', PI_URL + 'live')
+                } else {
+                    updateImg()
+                    setInterval(updateImg, 1500)
+                }
+                done = true
+            }
             xhr.send()
             await sleep(1500)
         }
