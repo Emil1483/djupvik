@@ -129,9 +129,19 @@ app.use((req, _, next) => {
     next()
 })
 
+function getHeaders(req) {
+    const headers = { 'x-forwarded-for': req.socket.remoteAddress }
+
+    if ('authorization' in req.headers) {
+        headers['authorization'] = req.headers.authorization
+    }
+
+    return headers
+}
+
 app.get('/:x', (req, res) => {
     const endpoint = url + req.params.x
-    const headers = { 'x-forwarded-for': req.socket.remoteAddress }
+    const headers = getHeaders(req)
 
     request.get({
         url: endpoint,
@@ -141,7 +151,7 @@ app.get('/:x', (req, res) => {
 
 app.post('/:x', (req, res) => {
     const endpoint = url + req.params.x
-    const headers = { 'x-forwarded-for': req.socket.remoteAddress }
+    const headers = getHeaders(req)
 
     request.post({
         url: endpoint,
