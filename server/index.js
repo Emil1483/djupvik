@@ -1,4 +1,3 @@
-import bodyParser from 'body-parser'
 import cors from 'cors'
 import express from 'express'
 import helmet from 'helmet'
@@ -10,7 +9,7 @@ const app = express()
 app.use(helmet())
 app.use(morgan('tiny'))
 app.use(cors())
-app.use(bodyParser.text());
+app.use(express.json());
 
 app.set('trust proxy', true)
 
@@ -156,7 +155,8 @@ app.post('/:x', (req, res) => {
     request.post({
         url: endpoint,
         headers: headers,
-        body: req.body.toString(),
+        body: req.body,
+        json: true,
     }).pipe(res)
 })
 

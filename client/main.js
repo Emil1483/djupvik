@@ -92,5 +92,5 @@ sayForm.addEventListener('submit', (event) => {
         alert(xhr.responseText)
     }
 
-    xhr.send(sayInput)
+    xhr.send(JSON.stringify({'text': sayInput}))
 })
