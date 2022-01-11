@@ -138,27 +138,46 @@ function getHeaders(req) {
     return headers
 }
 
-app.get('/:x', (req, res) => {
-    const endpoint = url + req.params.x
-    const headers = getHeaders(req)
+function dictToPath(dict) {
+    let result = ''
 
-    request.get({
-        url: endpoint,
-        headers: headers,
-    }).pipe(res)
-})
+    for (let i = 0; i < 10; i++) {
+        const char = String.fromCharCode(97 + i)
+        if (!(char in dict)) break
+        result += '/' + dict[char]
 
-app.post('/:x', (req, res) => {
-    const endpoint = url + req.params.x
-    const headers = getHeaders(req)
+    }
 
-    request.post({
-        url: endpoint,
-        headers: headers,
-        body: req.body,
-        json: true,
-    }).pipe(res)
-})
+    return result
+}
+
+let endpoint = ''
+for (let i = 0; i < 10; i++) {
+    endpoint += '/'
+
+    app.get(endpoint, (req, res) => {
+        const headers = getHeaders(req)
+
+        request.get({
+            url: url + dictToPath(req.params),
+            headers: headers,
+        }).pipe(res)
+    })
+
+    app.post(endpoint, (req, res) => {
+        const headers = getHeaders(req)
+
+        request.post({
+            url: url + dictToPath(req.params),
+            headers: headers,
+            body: req.body,
+            json: true,
+        }).pipe(res)
+    })
+
+    endpoint += ':'
+    endpoint += String.fromCharCode(97 + i)
+}
 
 
 app.listen(port, () => {
