@@ -14,7 +14,7 @@ app.use(express.json());
 app.set('trust proxy', true)
 
 const port = process.env.PORT || 1881
-const url = process.env.URL || 'https://192.168.10.69:5000/'
+const url = process.env.URL || 'https://192.168.10.69:5000'
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 const limits = {
