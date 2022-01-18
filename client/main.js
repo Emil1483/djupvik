@@ -66,7 +66,7 @@ sleep(1000).then(() => {
     setInterval(updateImg, 1500)
 })
 
-function cum() {
+function notify() {
     xhr.open('POST', APP_URL + 'notify')
 
     xhr.onreadystatechange = () => {
