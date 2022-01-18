@@ -110,13 +110,21 @@ app.use((req, _, next) => {
         ips[ip].sessions[endpoint] = { sessions: [] }
     }
 
+    
     if (endpoint == 'GET /frame') {
-        const lastCall = ips[ip].sessions[endpoint].lastCall
-
-        if (Date.now() - lastCall > 1000 * 5) {
-            ips[ip].sessions[endpoint].sessions.push(Date.now())
+        const prevSessionStart = ips[ip].sessions[endpoint].prevSessionStart
+        if (prevSessionStart == null) {
+            ips[ip].sessions[endpoint].prevSessionStart = Date.now()
         }
-
+        
+        const lastCall = ips[ip].sessions[endpoint].lastCall
+        
+        if (Date.now() - lastCall > 1000 * 5 ||
+        (prevSessionStart != null && Date.now() - prevSessionStart > 1000 * 30)) {
+            ips[ip].sessions[endpoint].sessions.push(Date.now())
+            ips[ip].sessions[endpoint].prevSessionStart = null
+        }
+        
         ips[ip].sessions[endpoint].lastCall = Date.now()
         next()
         return
