@@ -8,7 +8,6 @@
         }
     ],
     "routes": [
-        {"src": "/", "dest": "public"},
         {"src": "/.*", "dest": "index.js"}
     ]
 }
