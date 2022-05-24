@@ -24,7 +24,7 @@ const limits = {
 }
 
 const limitsNO = {
-    'GET /frame': 6,
+    'GET /frame': 3,
     'POST /notify': 6,
     'POST /say': 8
 }
